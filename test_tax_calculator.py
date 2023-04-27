@@ -55,7 +55,7 @@ def test_wic_only():
 
 def test_errors(capfd):
     cart5: list = [
-        Product("Product", "etc", 0.00)
+        Product("Product", "etc", 0.99)
     ]
 
     assert total_calculator("NY", cart5) == 0
@@ -78,10 +78,69 @@ def test_errors(capfd):
 
     # price must be float
     with pytest.raises(ValidationError) as exception_info:
-        Product("product", "etc", 119)
+        Product("product", "etc", 120)
     assert exception_info.type is ValidationError
 
     # quantity must be int
     with pytest.raises(ValidationError) as exception_info:
         Product("product", "etc", 119.99, 1.0)
     assert exception_info.type is ValidationError
+
+    # This next set worked when i was using pydantic.validate_arguments on the funciton but
+    # I didn't like that so I've changed to manual validation instead so no conversion happens
+
+    # i thought these would be error but the validate_arguments will convert these to a Product
+    # cart6 = [
+    #     ["Xbox", "etc", 499.99],
+    #     ("Xbox", "etc", 499.99),
+    #     {"name": "Xbox", "type": "etc", "unit_price": 499.99}
+    # ]
+
+    # assert total_calculator("DE", cart6) == 149997
+    # assert total_calculator("NJ", cart6) == 159897
+    # assert total_calculator("PA", cart6) == 158997
+
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator(3, cart5)  # NJ was the 3rd state
+    assert exception_info.type is TypeError
+
+    cart7 = [
+        "Xbox",
+        "etc",
+        499.99
+    ]
+
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator("DE", cart7)
+    assert exception_info.type is TypeError
+
+    cart8 = [
+        ["Xbox", "etc", 499.99]
+    ]
+
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator("DE", cart8)
+    assert exception_info.type is TypeError
+
+    cart9 = [
+        ("Xbox", "etc", 499.99)
+    ]
+
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator("DE", cart9)
+    assert exception_info.type is TypeError
+
+    cart10 = [
+        {"name": "Xbox", "type": "etc", "unit_price": 499.99}
+    ]
+
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator("DE", cart10)
+    assert exception_info.type is TypeError
+
+    single_item_purchase = Product("Xbox", "etc", 499.99)
+
+    # still want a cart (list) even for single items
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator("DE", single_item_purchase)
+    assert exception_info.type is TypeError

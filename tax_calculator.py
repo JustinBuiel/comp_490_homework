@@ -2,17 +2,21 @@ from product import Product
 
 
 def total_calculator(state: str, items: list[Product]) -> int:
-    tax: float = 0
-    taxed: bool = False
-    total: int = 0
+
+    state = _validate_state(state)
+    _validate_cart(items)
+
+    tax_percentage: float = 0
+    is_product_taxed: bool = False
+    final_total: int = 0
 
     match state:
         case "DE":
-            tax = 0
+            tax_percentage = 1.0
         case "NJ":
-            tax = .066
+            tax_percentage = 1.066
         case "PA":
-            tax = .06
+            tax_percentage = 1.06
         case _:
             print("Invalid state format or no business in given state")
             return 0
@@ -23,22 +27,36 @@ def total_calculator(state: str, items: list[Product]) -> int:
 
         match item.type:
             case "etc":
-                taxed = True
+                is_product_taxed = True
             case "WIC":
-                taxed = False
+                is_product_taxed = False
             case "clothing":
-                taxed = False
+                is_product_taxed = False
                 if state == "NJ" and _is_fur(item.name):
-                    taxed = True
-        if taxed:
-            total = total + item_total + (item_total * tax)
+                    is_product_taxed = True
+        if is_product_taxed:
+            final_total = final_total + (item_total * tax_percentage)
         else:
-            total = total + item_total
+            final_total = final_total + item_total
 
-    return int(round(total))
+    return int(round(final_total))
 
 
 def _is_fur(name: str) -> bool:
     if "fur" in name.lower():
         return True
     return False
+
+
+def _validate_state(state: str):
+    if isinstance(state, str):
+        return state.upper()
+    raise TypeError("State must be str")
+
+
+def _validate_cart(cart: list[Product]):
+    if not isinstance(cart, list):
+        raise TypeError("Must have a list as a container for the items")
+    for item in cart:
+        if not isinstance(item, Product):
+            raise TypeError("Items must be Products")
