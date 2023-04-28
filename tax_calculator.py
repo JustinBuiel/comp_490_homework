@@ -50,9 +50,9 @@ def _is_fur(name: str) -> bool:
 
 def _validate_state(state: str):
     if isinstance(state, str):
-        if len(state) == 2:
+        if len("".join(state.split())) == 2:
             return state.upper()
-    raise TypeError("State must be str and 2 characters long")
+    raise TypeError("State must be str and 2 real characters long")
 
 
 def _validate_cart(cart: list[Product]):
