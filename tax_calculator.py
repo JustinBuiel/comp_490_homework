@@ -18,7 +18,7 @@ def total_calculator(state: str, items: list[Product]) -> int:
         case "PA":
             tax_percentage = 1.06
         case _:
-            print("Invalid state format or no business in given state")
+            print("No business in given state")
             return 0
 
     for item in items:
@@ -50,8 +50,9 @@ def _is_fur(name: str) -> bool:
 
 def _validate_state(state: str):
     if isinstance(state, str):
-        return state.upper()
-    raise TypeError("State must be str")
+        if len(state) == 2:
+            return state.upper()
+    raise TypeError("State must be str and 2 characters long")
 
 
 def _validate_cart(cart: list[Product]):

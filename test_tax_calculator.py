@@ -60,11 +60,11 @@ def test_errors(capfd):
 
     assert total_calculator("NY", cart5) == 0
     out, err = capfd.readouterr()
-    assert out == "Invalid state format or no business in given state\n"
+    assert out == "No business in given state\n"
 
-    assert total_calculator("Penn", cart5) == 0
-    out, err = capfd.readouterr()
-    assert out == "Invalid state format or no business in given state\n"
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator("Penn", cart5)
+    assert exception_info.type is TypeError
 
     # name must be string
     with pytest.raises(ValidationError) as exception_info:
@@ -144,3 +144,27 @@ def test_errors(capfd):
     with pytest.raises(TypeError) as exception_info:
         total_calculator("DE", single_item_purchase)
     assert exception_info.type is TypeError
+
+    cart11 = [
+        "Xbox, etc, 499.99"
+    ]
+
+    with pytest.raises(TypeError) as exception_info:
+        total_calculator("DE", cart11)
+    assert exception_info.type is TypeError
+
+    with pytest.raises(ValidationError) as exception_info:
+        Product(" ", "etc", 10.99)
+    assert exception_info.type is ValidationError
+
+    with pytest.raises(ValidationError) as exception_info:
+        Product("", "etc", 10.99)
+    assert exception_info.type is ValidationError
+
+    with pytest.raises(ValidationError) as exception_info:
+        Product("Peanut M&Ms", "etc", 10.99, -1)
+    assert exception_info.type is ValidationError
+
+    with pytest.raises(ValidationError) as exception_info:
+        Product("Peanut M&Ms", "etc", 10.99, 0)
+    assert exception_info.type is ValidationError

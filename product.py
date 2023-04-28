@@ -9,6 +9,13 @@ class Product:
     unit_price: StrictFloat
     quantity: StrictInt = 1
 
+    @validator("name")
+    def check_name(cls, value):
+        if len("".join(value.split())) >= 1:
+            return value
+        else:
+            raise ValueError("Name must be at least 1 real character")
+
     @validator("type")
     def check_type(cls, value):
         if value == "clothing" or value == "etc" or value == "WIC":
@@ -22,3 +29,10 @@ class Product:
             return value
         else:
             raise ValueError("Item price must be at least 1 cent")
+
+    @validator("quantity")
+    def check_quantity(cls, value):
+        if value > 0:
+            return value
+        else:
+            raise ValueError("Item quantity must be a positive int")
